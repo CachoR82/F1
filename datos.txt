@@ -1,6 +1,4 @@
-ID	Nombre	Sueldo	Ciudad
-1	Juan	700	Madrid
-2	Ana	800	Barcelona
-3	Pedro	1200	Madrid
-4	María	900	Valencia
-5	Luis	2000	Madrid
+Nombre	Apellido	Edad	Ciudad	Ingreso
+Juan	Pérez	30	Madrid	15/03/2023
+Ana	Gómez	25	Barcelona	22/07/2024
+Luis	Martínez	35	Valencia	10/11/2022
