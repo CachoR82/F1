@@ -1,5 +1,5 @@
 ID	Nombre	Sueldo	Ciudad
-1	Juan	1500	Madrid
+1	Juan	700	Madrid
 2	Ana	800	Barcelona
 3	Pedro	1200	Madrid
 4	María	900	Valencia
