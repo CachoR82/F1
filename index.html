@@ -2,11 +2,13 @@
 <html>
 <head>
     <title>Base de Datos</title>
+    <meta charset="UTF-8">
     <style>
         table {
             border-collapse: collapse;
             width: 100%;
             margin: 20px 0;
+            font-family: Arial, sans-serif;
         }
         th, td {
             border: 1px solid black;
@@ -18,6 +20,11 @@
         }
         h2 {
             margin-top: 30px;
+            font-family: Arial, sans-serif;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -29,65 +36,83 @@
     <div id="tablaFiltrada"></div>
 
     <script>
-        // Clase para manejar la base de datos
         class BaseDatos {
             constructor() {
                 this.registros = [];
             }
 
-            // Cargar datos desde el archivo
             async cargarDatos() {
                 try {
-                    const response = await fetch('datos.txt');
+                    // Cargar datos desde la URL raw de GitHub
+                    const response = await fetch('https://raw.githubusercontent.com/CachoR82/F1/main/datos.txt', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'text/plain; charset=UTF-8'
+                        }
+                    });
+                    if (!response.ok) {
+                        throw new Error(`No se pudo cargar datos.txt: ${response.status} - ${response.statusText}`);
+                    }
                     const texto = await response.text();
+                    if (!texto.trim()) {
+                        throw new Error('El archivo datos.txt está vacío');
+                    }
                     const lineas = texto.trim().split('\n');
+                    if (lineas.length < 2) {
+                        throw new Error('El archivo datos.txt no contiene datos válidos');
+                    }
                     const encabezados = lineas[0].split('\t');
 
-                    // Convertir líneas en objetos
                     for (let i = 1; i < lineas.length; i++) {
                         const valores = lineas[i].split('\t');
+                        if (valores.length !== encabezados.length) {
+                            console.warn(`Línea ${i} tiene un número incorrecto de columnas: ${valores}`);
+                            continue;
+                        }
                         const registro = {};
                         for (let j = 0; j < encabezados.length; j++) {
-                            // Convertir Sueldo a número y limpiar espacios
+                            const valor = valores[j].trim();
                             registro[encabezados[j]] = encabezados[j] === 'Sueldo' 
-                                ? parseFloat(valores[j].trim()) 
-                                : valores[j].trim();
+                                ? parseFloat(valor) 
+                                : valor;
                         }
                         this.registros.push(registro);
                     }
+                    console.log('Datos cargados:', this.registros);
                 } catch (error) {
-                    console.error('Error al cargar datos:', error);
+                    console.error('Error:', error);
                     document.getElementById('tablaTodos').innerHTML = 
-                        '<p>Error al cargar los datos</p>';
+                        `<p class="error">Error al cargar los datos: ${error.message}</p>`;
+                    throw error;
                 }
             }
 
-            // Filtrar personas en Madrid con sueldo > 1000
             filtrarMadridSueldoMayor1000() {
-                return this.registros.filter(registro => 
-                    registro.Ciudad.trim().toLowerCase() === 'madrid' && 
-                    registro.Sueldo > 1000
-                );
+                const filtrados = this.registros.filter(registro => {
+                    const ciudad = registro.Ciudad ? registro.Ciudad.trim().toLowerCase() : '';
+                    const sueldo = registro.Sueldo;
+                    console.log(`Filtrando: Ciudad=${ciudad}, Sueldo=${sueldo}`);
+                    return ciudad === 'madrid' && sueldo > 1000;
+                });
+                console.log('Filtrados:', filtrados);
+                return filtrados;
             }
         }
 
-        // Función para generar una tabla HTML
         function generarTabla(datos, contenedorId) {
             const contenedor = document.getElementById(contenedorId);
-            if (datos.length === 0) {
+            if (!datos || datos.length === 0) {
                 contenedor.innerHTML = '<p>No se encontraron datos</p>';
                 return;
             }
 
             let html = '<table>';
-            // Encabezados
             html += '<tr>';
             for (let key in datos[0]) {
                 html += `<th>${key}</th>`;
             }
             html += '</tr>';
 
-            // Filas
             datos.forEach(item => {
                 html += '<tr>';
                 for (let key in item) {
@@ -100,20 +125,18 @@
             contenedor.innerHTML = html;
         }
 
-        // Función principal para cargar y mostrar datos
         async function cargarYMostrarDatos() {
             const db = new BaseDatos();
-            await db.cargarDatos();
-
-            // Mostrar todos los datos
-            generarTabla(db.registros, ' tablaTodos');
-
-            // Mostrar datos filtrados
-            const filtrados = db.filtrarMadridSueldoMayor1000();
-            generarTabla(filtrados, 'tablaFiltrada');
+            try {
+                await db.cargarDatos();
+                generarTabla(db.registros, 'tablaTodos');
+                const filtrados = db.filtrarMadridSueldoMayor1000();
+                generarTabla(filtrados, 'tablaFiltrada');
+            } catch (error) {
+                // Error ya manejado en cargarDatos
+            }
         }
 
-        // Ejecutar al cargar la página
         window.onload = cargarYMostrarDatos;
     </script>
 </body>
