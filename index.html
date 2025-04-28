@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Base de Datos</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        h2 {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Consulta de Datos</h1>
+    <h2>Todos los Datos</h2>
+    <div id="tablaTodos"></div>
+    <h2>Personas en Madrid con Sueldo > 1000</h2>
+    <div id="tablaFiltrada"></div>
+
+    <script>
+        // Clase para manejar la base de datos
+        class BaseDatos {
+            constructor() {
+                this.registros = [];
+            }
+
+            // Cargar datos desde el archivo
+            async cargarDatos() {
+                try {
+                    const response = await fetch('datos.txt');
+                    const texto = await response.text();
+                    const lineas = texto.trim().split('\n');
+                    const encabezados = lineas[0].split('\t');
+
+                    // Convertir líneas en objetos
+                    for (let i = 1; i < lineas.length; i++) {
+                        const valores = lineas[i].split('\t');
+                        const registro = {};
+                        for (let j = 0; j < encabezados.length; j++) {
+                            // Convertir Sueldo a número y limpiar espacios
+                            registro[encabezados[j]] = encabezados[j] === 'Sueldo' 
+                                ? parseFloat(valores[j].trim()) 
+                                : valores[j].trim();
+                        }
+                        this.registros.push(registro);
+                    }
+                } catch (error) {
+                    console.error('Error al cargar datos:', error);
+                    document.getElementById('tablaTodos').innerHTML = 
+                        '<p>Error al cargar los datos</p>';
+                }
+            }
+
+            // Filtrar personas en Madrid con sueldo > 1000
+            filtrarMadridSueldoMayor1000() {
+                return this.registros.filter(registro => 
+                    registro.Ciudad.trim().toLowerCase() === 'madrid' && 
+                    registro.Sueldo > 1000
+                );
+            }
+        }
+
+        // Función para generar una tabla HTML
+        function generarTabla(datos, contenedorId) {
+            const contenedor = document.getElementById(contenedorId);
+            if (datos.length === 0) {
+                contenedor.innerHTML = '<p>No se encontraron datos</p>';
+                return;
+            }
+
+            let html = '<table>';
+            // Encabezados
+            html += '<tr>';
+            for (let key in datos[0]) {
+                html += `<th>${key}</th>`;
+            }
+            html += '</tr>';
+
+            // Filas
+            datos.forEach(item => {
+                html += '<tr>';
+                for (let key in item) {
+                    html += `<td>${item[key]}</td>`;
+                }
+                html += '</tr>';
+            });
+
+            html += '</table>';
+            contenedor.innerHTML = html;
+        }
+
+        // Función principal para cargar y mostrar datos
+        async function cargarYMostrarDatos() {
+            const db = new BaseDatos();
+            await db.cargarDatos();
+
+            // Mostrar todos los datos
+            generarTabla(db.registros, ' tablaTodos');
+
+            // Mostrar datos filtrados
+            const filtrados = db.filtrarMadridSueldoMayor1000();
+            generarTabla(filtrados, 'tablaFiltrada');
+        }
+
+        // Ejecutar al cargar la página
+        window.onload = cargarYMostrarDatos;
+    </script>
+</body>
+</html>
