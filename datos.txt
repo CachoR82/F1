@@ -1,4 +1,0 @@
-Nombre	Apellido	Edad	Ciudad	Ingreso
-Juan	Pérez	30	Madrid	15/03/2023
-Ana	Gómez	25	Barcelona	22/07/2024
-Luis	Martínez	35	Valencia	10/11/2022
