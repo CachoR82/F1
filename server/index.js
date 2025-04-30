@@ -19,7 +19,7 @@ admin.initializeApp({
 const db = admin.firestore();
 
 // Endpoint para buscar
-app.post('/api/buscar', async (req, res) => {
+app.all('/api/buscar', async (req, res) => {
   try {
     const { torre, piso, depto, clave } = req.body;
     if (!torre || !piso || !depto || !clave) {
