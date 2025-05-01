@@ -1,6 +1,14 @@
-"dependencies": {
-  "express": "^4.19.2",
-  "firebase-admin": "^12.1.0",
-  "bcrypt": "^5.1.1",
-  "cors": "^2.8.5"
+{
+  "name": "f1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "firebase-admin": "^12.1.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5"
+  }
 }
