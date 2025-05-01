@@ -1,143 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Base de Datos</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Fumigaciones</title>
     <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 20px 0;
+        body {
             font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
         }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
         }
-        th {
-            background-color: #f2f2f2;
+        .form-group {
+            margin-bottom: 15px;
         }
-        h2 {
-            margin-top: 30px;
-            font-family: Arial, sans-serif;
-        }
-        .error {
-            color: red;
+        label {
+            display: block;
+            margin-bottom: 5px;
             font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #resultado {
+            margin-top: 20px;
+            text-align: left;
         }
     </style>
 </head>
 <body>
-    <h1>Consulta de Datos</h1>
-    <h2>Todos los Datos</h2>
-    <div id="tablaTodos"></div>
-    <h2>Personas en Madrid con Sueldo > 1000</h2>
-    <div id="tablaFiltrada"></div>
-
+    <div class="container">
+        <h2>Buscar Fumigaciones</h2>
+        <form id="fumigacionForm">
+            <div class="form-group">
+                <label for="torre">Torre:</label>
+                <select id="torre" name="torre" required>
+                    <option value="">Seleccione una torre</option>
+                    <option value="A">Torre A</option>
+                    <option value="B">Torre B</option>
+                    <option value="C">Torre C</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="piso">Piso:</label>
+                <input type="number" id="piso" name="piso" min="1" max="20" required>
+            </div>
+            <div class="form-group">
+                <label for="depto">Departamento:</label>
+                <select id="depto" name="depto" required>
+                    <option value="">Seleccione un departamento</option>
+                    <option value="1">Depto 1</option>
+                    <option value="2">Depto 2</option>
+                    <option value="3">Depto 3</option>
+                    <option value="4">Depto 4</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="clave">Clave:</label>
+                <input type="password" id="clave" name="clave" required>
+            </div>
+            <button type="submit">Buscar</button>
+        </form>
+        <div id="resultado"></div>
+    </div>
     <script>
-        class BaseDatos {
-            constructor() {
-                this.registros = [];
-            }
+        document.getElementById('fumigacionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const torre = document.getElementById('torre').value;
+            const piso = document.getElementById('piso').value;
+            const depto = document.getElementById('depto').value;
+            const clave = document.getElementById('clave').value;
 
-            async cargarDatos() {
-                try {
-                    // Cargar datos desde la URL raw de GitHub
-                    const response = await fetch('https://raw.githubusercontent.com/CachoR82/F1/main/datos.txt', {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'text/plain; charset=UTF-8'
-                        }
-                    });
-                    if (!response.ok) {
-                        throw new Error(`No se pudo cargar datos.txt: ${response.status} - ${response.statusText}`);
-                    }
-                    const texto = await response.text();
-                    if (!texto.trim()) {
-                        throw new Error('El archivo datos.txt está vacío');
-                    }
-                    const lineas = texto.trim().split('\n');
-                    if (lineas.length < 2) {
-                        throw new Error('El archivo datos.txt no contiene datos válidos');
-                    }
-                    const encabezados = lineas[0].split('\t');
-
-                    for (let i = 1; i < lineas.length; i++) {
-                        const valores = lineas[i].split('\t');
-                        if (valores.length !== encabezados.length) {
-                            console.warn(`Línea ${i} tiene un número incorrecto de columnas: ${valores}`);
-                            continue;
-                        }
-                        const registro = {};
-                        for (let j = 0; j < encabezados.length; j++) {
-                            const valor = valores[j].trim();
-                            registro[encabezados[j]] = encabezados[j] === 'Sueldo' 
-                                ? parseFloat(valor) 
-                                : valor;
-                        }
-                        this.registros.push(registro);
-                    }
-                    console.log('Datos cargados:', this.registros);
-                } catch (error) {
-                    console.error('Error:', error);
-                    document.getElementById('tablaTodos').innerHTML = 
-                        `<p class="error">Error al cargar los datos: ${error.message}</p>`;
-                    throw error;
-                }
-            }
-
-            filtrarMadridSueldoMayor1000() {
-                const filtrados = this.registros.filter(registro => {
-                    const ciudad = registro.Ciudad ? registro.Ciudad.trim().toLowerCase() : '';
-                    const sueldo = registro.Sueldo;
-                    console.log(`Filtrando: Ciudad=${ciudad}, Sueldo=${sueldo}`);
-                    return ciudad === 'madrid' && sueldo > 1000;
-                });
-                console.log('Filtrados:', filtrados);
-                return filtrados;
-            }
-        }
-
-        function generarTabla(datos, contenedorId) {
-            const contenedor = document.getElementById(contenedorId);
-            if (!datos || datos.length === 0) {
-                contenedor.innerHTML = '<p>No se encontraron datos</p>';
-                return;
-            }
-
-            let html = '<table>';
-            html += '<tr>';
-            for (let key in datos[0]) {
-                html += `<th>${key}</th>`;
-            }
-            html += '</tr>';
-
-            datos.forEach(item => {
-                html += '<tr>';
-                for (let key in item) {
-                    html += `<td>${item[key]}</td>`;
-                }
-                html += '</tr>';
-            });
-
-            html += '</table>';
-            contenedor.innerHTML = html;
-        }
-
-        async function cargarYMostrarDatos() {
-            const db = new BaseDatos();
-            try {
-                await db.cargarDatos();
-                generarTabla(db.registros, 'tablaTodos');
-                const filtrados = db.filtrarMadridSueldoMayor1000();
-                generarTabla(filtrados, 'tablaFiltrada');
-            } catch (error) {
-                // Error ya manejado en cargarDatos
-            }
-        }
-
-        window.onload = cargarYMostrarDatos;
+            // Mostrar un mensaje temporal mientras implementamos la conexión con el backend
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerHTML = `Buscando datos para Torre: ${torre}, Piso: ${piso}, Depto: ${depto}...`;
+            
+            // Aquí implementaremos la llamada al backend en el Paso 3
+        });
     </script>
 </body>
 </html>
