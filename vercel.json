@@ -5,7 +5,7 @@
       "src": "server/index.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["server/package.json", "server/index.js"]
+        "distDir": "server"
       }
     },
     {
