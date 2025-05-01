@@ -93,6 +93,66 @@ app.post('/api/guardar', async (req, res) => {
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 3000;
+
+app.get('/api/informe-fumigador', async (req, res) => {
+    try {
+        const torre = parseInt(req.query.torre);
+        const snapshot = await admin.firestore().collection('idFum')
+            .where('Torre', '==', torre)
+            .where('Servicio', '==', true)
+            .get();
+        const documentos = snapshot.docs.map(doc => doc.data());
+        res.json({ documentos });
+    } catch (error) {
+        res.status(500).json({ error: `Error al generar informe: ${error.message}` });
+    }
+});
+
+app.get('/api/informe-completo', async (req, res) => {
+    try {
+        const torre = parseInt(req.query.torre);
+        const snapshot = await admin.firestore().collection('idFum')
+            .where('Torre', '==', torre)
+            .get();
+        const documentos = snapshot.docs.map(doc => doc.data());
+        res.json({ documentos });
+    } catch (error) {
+        res.status(500).json({ error: `Error al generar informe: ${error.message}` });
+    }
+});
+
+app.post('/api/inicializar', async (req, res) => {
+    try {
+        const torre = parseInt(req.query.torre);
+        const snapshot = await admin.firestore().collection('idFum')
+            .where('Torre', '==', torre)
+            .get();
+        const batch = admin.firestore().batch();
+        snapshot.forEach(doc => {
+            batch.update(doc.ref, {
+                Comentarios: "",
+                Servicio: false,
+                Timestamp: null
+            });
+        });
+        await batch.commit();
+        res.json({ message: `Base de datos inicializada para Torre ${torre}.` });
+    } catch (error) {
+        res.status(500).json({ error: `Error al inicializar: ${error.message}` });
+    }
+});
+
+app.post('/api/blanquear-password', async (req, res) => {
+    try {
+        const { docId } = req.body;
+        const docRef = admin.firestore().collection('idFum').doc(docId);
+        await docRef.update({ passCrypt: '' });
+        res.json({ message: `Contraseña blanqueada para ${docId}.` });
+    } catch (error) {
+        res.status(500).json({ error: `Error al blanquear la contraseña: ${error.message}` });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
