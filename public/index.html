@@ -3,107 +3,415 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscar Fumigaciones</title>
+    <title>Reservas para Fumigación</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
+            margin: 20px;
         }
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: center;
+        h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
         }
-        .form-group {
+        h2 {
+            font-size: 16px;
+            margin-top: 0;
             margin-bottom: 15px;
         }
+        table {
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            table-layout: fixed;
+        }
+        td {
+            vertical-align: top;
+            padding: 0;
+        }
+        #tablaSuperior {
+            width: 230px;
+        }
+        #tablaSuperior td:nth-child(1) {
+            width: 66px;
+        }
+        #tablaSuperior td:nth-child(2) {
+            width: 65px;
+        }
+        #tablaSuperior td:nth-child(3) {
+            width: 92px;
+        }
+        #contenedorInferior {
+            width: 224px;
+        }
+        #contenedorInferior td:nth-child(1) {
+            width: 100px;
+        }
+        #contenedorInferior td:nth-child(2) {
+            width: 124px;
+        }
         label {
+            font-weight: bold;
             display: block;
             margin-bottom: 5px;
-            font-weight: bold;
         }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        input[type="number"], select, input[type="password"] {
+            padding: 5px;
+            font-size: 14px;
             box-sizing: border-box;
         }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007BFF;
+        #piso {
+            width: 45px;
+        }
+        select#depto {
+            width: 50px;
+        }
+        select#torre {
+            width: 70px;
+            font-size: 14px;
+            background-color: blue;
             color: white;
+            padding: 0 0 0 0px;
+        }
+        input[type="text"]#comentarios {
+            padding: 5px;
+            font-size: 14px;
+            width: 120px;
+            box-sizing: border-box;
+        }
+        input[type="password"] {
+            width: 100%;
+        }
+        input[type="checkbox"] {
+            transform: scale(1.5);
+            margin-top: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 8px;
             border: none;
-            border-radius: 4px;
             cursor: pointer;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        #tablaSuperiorWrapper button {
+            width: 40%;
+        }
+        #contenedorInferiorWrapper button {
+            width: 40%;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #45a049;
         }
-        #resultado {
-            margin-top: 20px;
-            text-align: left;
+        .hidden {
+            display: none;
+        }
+        hr {
+            width: 100%;
+            margin: 10px 0;
+        }
+        .mensaje {
+            color: red;
+            font-size: 14px;
+            padding: 10px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 192, 0.9);
+            border: 1px solid red;
+            border-radius: 5px;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+        .mensaje.oculto {
+            opacity: 0;
+        }
+        .mensaje-clave {
+            background-color: #f8f8f8;
+            color: black;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: bold;
+            max-width: 230px;
+            margin-top: 5px;
+            user-select: none;
+            pointer-events: none;
+            display: none;
+        }
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 42px;
+        }
+        .form-row label {
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Buscar Fumigaciones</h2>
-        <form id="fumigacionForm">
-            <div class="form-group">
-                <label for="torre">Torre:</label>
-                <select id="torre" name="torre" required>
-                    <option value="">Seleccione una torre</option>
-                    <option value="A">Torre A</option>
-                    <option value="B">Torre B</option>
-                    <option value="C">Torre C</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="piso">Piso:</label>
-                <input type="number" id="piso" name="piso" min="1" max="20" required>
-            </div>
-            <div class="form-group">
-                <label for="depto">Departamento:</label>
-                <select id="depto" name="depto" required>
-                    <option value="">Seleccione un departamento</option>
-                    <option value="1">Depto 1</option>
-                    <option value="2">Depto 2</option>
-                    <option value="3">Depto 3</option>
-                    <option value="4">Depto 4</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="clave">Clave:</label>
-                <input type="password" id="clave" name="clave" required>
-            </div>
-            <button type="submit">Buscar</button>
-        </form>
-        <div id="resultado"></div>
+    <h1>Reservas para Fumigación</h1>
+    <div class="form-row">
+        <label for="torre">Torre</label>
+        <select id="torre" name="torre" required>
+            <option value="1920" selected>1920</option>
+            <option value="1960">1960</option>
+        </select>
     </div>
-    <script>
-        document.getElementById('fumigacionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const torre = document.getElementById('torre').value;
-            const piso = document.getElementById('piso').value;
-            const depto = document.getElementById('depto').value;
-            const clave = document.getElementById('clave').value;
 
-            // Mostrar un mensaje temporal mientras implementamos la conexión con el backend
-            const resultadoDiv = document.getElementById('resultado');
-            resultadoDiv.innerHTML = `Buscando datos para Torre: ${torre}, Piso: ${piso}, Depto: ${depto}...`;
-            
-            // Aquí implementaremos la llamada al backend en el Paso 3
+    <div id="tablaSuperiorWrapper">
+        <table id="tablaSuperior">
+            <tr>
+                <td><label for="piso">Piso</label></td>
+                <td><label for="depto">Depto</label></td>
+                <td><label for="clave">Password</label></td>
+            </tr>
+            <tr>
+                <td><input type="number" id="piso" name="piso" min="0" max="15" required></td>
+                <td>
+                    <select id="depto" name="depto" required>
+                        <option value="A" selected>A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </td>
+                <td><input type="password" id="clave" name="clave" required></td>
+            </tr>
+        </table>
+        <button type="button" id="botonBuscar">Buscar</button>
+        <div id="mensajeClave" class="mensaje-clave">
+            Esta contraseña es personal y sirve para modificar datos: ¡No la pierda!
+        </div>
+    </div>
+
+    <div class="hidden" id="contenedorInferiorWrapper">
+        <hr>
+        <table id="contenedorInferior">
+            <tr>
+                <td>
+                    <label for="servicio">Servicio</label>
+                    <input type="checkbox" id="servicio" name="servicio">
+                </td>
+                <td>
+                    <label for="comentarios">Comentarios</label>
+                    <input type="text" id="comentarios" name="comentarios">
+                </td>
+            </tr>
+        </table>
+        <button type="button" onclick="guardar()">Guardar</button>
+    </div>
+
+    <div id="mensajeContenedor"></div>
+
+    <script>
+        // Función para mostrar mensajes
+        function mostrarMensaje(texto, duracion) {
+            const contenedor = document.getElementById("mensajeContenedor");
+            const mensaje = document.createElement("div");
+            mensaje.className = "mensaje";
+            mensaje.textContent = texto;
+            contenedor.appendChild(mensaje);
+
+            setTimeout(() => {
+                mensaje.classList.add("oculto");
+                setTimeout(() => contenedor.removeChild(mensaje), 500);
+            }, duracion);
+        }
+
+        // Obtener el valor de TORRE_NUMERO del selector
+        function getTorreNumero() {
+            return document.getElementById("torre").value;
+        }
+
+        // Ocultar la parte inferior y limpiar campos al recibir el foco
+        document.getElementById("piso").addEventListener("focus", function() {
+            document.getElementById("contenedorInferiorWrapper").classList.add("hidden");
+            document.getElementById("servicio").checked = false;
+            document.getElementById("comentarios").value = "";
+        });
+
+        document.getElementById("depto").addEventListener("focus", function() {
+            document.getElementById("contenedorInferiorWrapper").classList.add("hidden");
+            document.getElementById("servicio").checked = false;
+            document.getElementById("comentarios").value = "";
+        });
+
+        document.getElementById("clave").addEventListener("focus", function() {
+            document.getElementById("contenedorInferiorWrapper").classList.add("hidden");
+            document.getElementById("servicio").checked = false;
+            document.getElementById("comentarios").value = "";
+        });
+
+        // Añadir evento al selector de torre para ocultar contenedor inferior al cambiar
+        document.getElementById("torre").addEventListener("change", function() {
+            document.getElementById("contenedorInferiorWrapper").classList.add("hidden");
+            document.getElementById("servicio").checked = false;
+            document.getElementById("comentarios").value = "";
+        });
+
+        // Mostrar mensaje debajo del botón Buscar
+        window.addEventListener("DOMContentLoaded", () => {
+            const claveInput = document.getElementById("clave");
+            const mensajeClave = document.getElementById("mensajeClave");
+
+            if (!claveInput) {
+                console.error("Error: No se encontró el elemento con id 'clave'");
+                return;
+            }
+            if (!mensajeClave) {
+                console.error("Error: No se encontró el elemento con id 'mensajeClave'");
+                return;
+            }
+
+            claveInput.addEventListener("focus", () => {
+                if (claveInput.value.trim() === "") {
+                    mensajeClave.style.display = "block";
+                } else {
+                    mensajeClave.style.display = "none";
+                }
+            });
+
+            claveInput.addEventListener("input", () => {
+                if (claveInput.value.trim() === "") {
+                    mensajeClave.style.display = "block";
+                } else {
+                    mensajeClave.style.display = "none";
+                }
+            });
+
+            claveInput.addEventListener("blur", () => {
+                mensajeClave.style.display = "none";
+            });
+        });
+
+        // Función buscar
+        async function buscar() {
+            try {
+                const pisoInput = document.getElementById("piso");
+                const pisoValor = pisoInput.value.trim();
+                const claveInput = document.getElementById("clave").value.trim();
+
+                if (pisoValor === "") {
+                    mostrarMensaje("El campo Piso no puede estar vacío.", 2000);
+                    return;
+                }
+
+                if (claveInput === "") {
+                    mostrarMensaje("El campo Password no puede estar vacío.", 2000);
+                    return;
+                }
+
+                if (!/^\d+$/.test(pisoValor)) {
+                    mostrarMensaje("El campo Piso debe ser un número entero.", 2000);
+                    return;
+                }
+
+                const pisoNumero = parseInt(pisoValor);
+                if (pisoNumero < 0 || pisoNumero > 15) {
+                    mostrarMensaje("El Piso debe estar entre 0 y 15.", 2000);
+                    return;
+                }
+
+                const depto = document.getElementById("depto").value;
+                const TORRE_NUMERO = getTorreNumero();
+
+                // Enviar solicitud al backend
+                const response = await fetch('/api/buscar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        torre: parseInt(TORRE_NUMERO),
+                        piso: pisoNumero,
+                        depto: depto,
+                        clave: claveInput
+                    }),
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    mostrarMensaje(result.error || "Error al buscar.", 2000);
+                    document.getElementById("contenedorInferiorWrapper").classList.add("hidden");
+                    return;
+                }
+
+                document.getElementById("contenedorInferiorWrapper").classList.remove("hidden");
+                document.getElementById("servicio").checked = result.Servicio || false;
+                document.getElementById("comentarios").value = result.Comentarios || "";
+            } catch (error) {
+                mostrarMensaje("Error al buscar: " + error.message, 3000);
+                document.getElementById("contenedorInferiorWrapper").classList.add("hidden");
+            }
+        }
+
+        // Función guardar
+        async function guardar() {
+            try {
+                const pisoInput = document.getElementById("piso");
+                const pisoValor = pisoInput.value.trim();
+                const claveInput = document.getElementById("clave").value.trim();
+                const pisoNumero = parseInt(pisoValor);
+                const depto = document.getElementById("depto").value;
+                const servicio = document.getElementById("servicio").checked;
+                let comentarios = document.getElementById("comentarios").value;
+
+                if (pisoValor === "") {
+                    mostrarMensaje("El campo Piso no puede estar vacío.", 2000);
+                    return;
+                }
+
+                if (!servicio) {
+                    comentarios = "";
+                    document.getElementById("comentarios").value = "";
+                }
+
+                const TORRE_NUMERO = getTorreNumero();
+
+                // Enviar solicitud al backend
+                const response = await fetch('/api/guardar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        torre: parseInt(TORRE_NUMERO),
+                        piso: pisoNumero,
+                        depto: depto,
+                        clave: claveInput,
+                        servicio: servicio,
+                        comentarios: comentarios
+                    }),
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    mostrarMensaje(result.error || "Error al guardar.", 2000);
+                    return;
+                }
+
+                mostrarMensaje("Datos guardados con éxito.", 2000);
+
+                document.getElementById("piso").value = "";
+                document.getElementById("depto").value = "A";
+                document.getElementById("clave").value = "";
+                document.getElementById("servicio").checked = false;
+                document.getElementById("comentarios").value = "";
+
+                document.getElementById("contenedorInferiorWrapper").classList.add("hidden");
+            } catch (error) {
+                mostrarMensaje("Error al guardar: " + error.message, 3000);
+            }
+        }
+
+        // Asignar evento al botón Buscar
+        document.getElementById("botonBuscar").addEventListener("click", function() {
+            buscar();
         });
     </script>
 </body>
