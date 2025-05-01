@@ -19,5 +19,6 @@
       "src": "/(.*)",
       "dest": "/public/index.html"
     }
-  ]
+  ],
+  "buildCommand": "cd server && npm install"
 }
