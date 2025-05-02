@@ -284,6 +284,7 @@
                 </tr>
             </table>
             <button onclick="validarPiso()"><b>Click para blanquear la password</b></button>
+            <div id="tab2Output"></div>
         </div>
     </div>
 
@@ -421,33 +422,41 @@
             const deptoSelect = document.getElementById('deptoSelect').value;
 
             function showMessageTab2(text, type) {
+                const outputDiv = document.getElementById("tab2Output");
                 const messageBox = document.createElement('div');
-                messageBox.className = 'message-box';
-                if (type === 'success') messageBox.classList.add('success');
+                messageBox.className = type === 'success' ? 'confirmation-message' : 'error-message';
                 messageBox.textContent = text;
-                document.body.appendChild(messageBox);
-                setTimeout(() => messageBox.remove(), 3000);
-            }
+                outputDiv.innerHTML = ""; // Limpiar mensajes anteriores
+                outputDiv.appendChild(messageBox);
 
-            if (pisoInput === '') {
-                showMessageTab2('El campo Piso no puede estar vacío.');
-                return;
+                // Desvanecer y eliminar después de 3 segundos
+                setTimeout(() => {
+                    messageBox.classList.add('fade-out');
+                    setTimeout(() => {
+                        outputDiv.innerHTML = "";
+                    }, 1000); // Transición de 1 segundo
+                }, 3000);
             }
-
-            if (pisoInput.includes(',') || pisoInput.includes('.')) {
-                showMessageTab2('El campo Piso no puede contener comas ni puntos.');
-                return;
-            }
-
-            const pisoNum = parseInt(pisoInput);
-            if (isNaN(pisoNum) || pisoNum < 0 || pisoNum > 15 || pisoInput !== pisoNum.toString()) {
-                showMessageTab2('El campo Piso debe ser un número entero entre 0 y 15.');
-                return;
-            }
-
-            const docId = `${torreSelect}_${pisoNum}_${deptoSelect}`;
 
             try {
+                if (pisoInput === '') {
+                    showMessageTab2('El campo Piso no puede estar vacío.', 'error');
+                    return;
+                }
+
+                if (pisoInput.includes(',') || pisoInput.includes('.')) {
+                    showMessageTab2('El campo Piso no puede contener comas ni puntos.', 'error');
+                    return;
+                }
+
+                const pisoNum = parseInt(pisoInput);
+                if (isNaN(pisoNum) || pisoNum < 0 || pisoNum > 15 || pisoInput !== pisoNum.toString()) {
+                    showMessageTab2('El campo Piso debe ser un número entero entre 0 y 15.', 'error');
+                    return;
+                }
+
+                const docId = `${torreSelect}_${pisoNum}_${deptoSelect}`;
+
                 const response = await fetch(`/api/blanquear-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -456,13 +465,17 @@
                 const data = await response.json();
 
                 if (data.error) {
-                    showMessageTab2(data.error, "error");
+                    if (data.error.includes('no existe')) {
+                        showMessageTab2(`No existe el documento ${docId}.`, 'error');
+                    } else {
+                        showMessageTab2(data.error, 'error');
+                    }
                     return;
                 }
 
                 showMessageTab2(`Contraseña blanqueada para ${docId}.`, 'success');
             } catch (error) {
-                showMessageTab2(`Error al blanquear la contraseña: ${error.message}`, "error");
+                showMessageTab2(`Error al blanquear la contraseña: ${error.message}`, 'error');
             }
         }
 
