@@ -91,7 +91,9 @@ app.post('/api/guardar', async (req, res) => {
     }
 });
 
-// Ruta para informe fumigador
+// Iniciar el servidor
+const PORT = process.env.PORT || 3000;
+
 app.get('/api/informe-fumigador', async (req, res) => {
     try {
         const torre = parseInt(req.query.torre);
@@ -112,7 +114,6 @@ app.get('/api/informe-fumigador', async (req, res) => {
     }
 });
 
-// Ruta para informe completo
 app.get('/api/informe-completo', async (req, res) => {
     try {
         const torre = parseInt(req.query.torre);
@@ -132,7 +133,6 @@ app.get('/api/informe-completo', async (req, res) => {
     }
 });
 
-// Ruta para inicializar
 app.post('/api/inicializar', async (req, res) => {
     try {
         const { torre } = req.body; // Cambia de req.query a req.body
@@ -161,21 +161,10 @@ app.post('/api/inicializar', async (req, res) => {
     }
 });
 
-// Ruta para blanquear password
 app.post('/api/blanquear-password', async (req, res) => {
     try {
         const { docId } = req.body;
-        if (!docId) {
-            return res.status(400).json({ error: 'Falta el parámetro docId.' });
-        }
-
         const docRef = admin.firestore().collection('idFum').doc(docId);
-        const docSnap = await docRef.get(); // Verificar si el documento existe
-
-        if (!docSnap.exists) {
-            return res.status(404).json({ error: `El documento con ID ${docId} no existe en la base de datos.` });
-        }
-
         await docRef.update({ passCrypt: '' });
         res.json({ message: `Contraseña blanqueada para ${docId}.` });
     } catch (error) {
@@ -183,8 +172,6 @@ app.post('/api/blanquear-password', async (req, res) => {
     }
 });
 
-// Iniciar el servidor
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
