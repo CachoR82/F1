@@ -568,5 +568,16 @@ async function inicializarBD() {
             document.querySelector(`.tab-button[onclick="openTab('${tabId}')"]`).classList.add('active');
         }
     </script>
+
+<!-- Modal de Confirmación -->
+<div id="confirmModal" style="display: none;">
+    <div class="modal-content">
+        <p id="confirmMessage"></p>
+        <button id="confirmYes">Aceptar</button>
+        <button id="confirmNo">Cancelar</button>
+    </div>
+</div>
+
+    
 </body>
 </html>
