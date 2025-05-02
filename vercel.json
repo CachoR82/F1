@@ -16,6 +16,10 @@
       "dest": "/index.js"
     },
     {
+      "src": "/Fum.html",
+      "dest": "/public/Fum.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/public/index.html"
     }
