@@ -101,7 +101,13 @@ app.get('/api/informe-fumigador', async (req, res) => {
             .where('Torre', '==', torre)
             .where('Servicio', '==', true)
             .get();
-        const documentos = snapshot.docs.map(doc => doc.data());
+        const documentos = snapshot.docs.map(doc => {
+            const data = doc.data();
+            if (data.Timestamp) {
+                data.Timestamp = data.Timestamp.toMillis(); // Convierte a milisegundos
+            }
+            return data;
+        });
         res.json({ documentos });
     } catch (error) {
         res.status(500).json({ error: `Error al generar informe: ${error.message}` });
@@ -114,7 +120,13 @@ app.get('/api/informe-completo', async (req, res) => {
         const snapshot = await admin.firestore().collection('idFum')
             .where('Torre', '==', torre)
             .get();
-        const documentos = snapshot.docs.map(doc => doc.data());
+        const documentos = snapshot.docs.map(doc => {
+            const data = doc.data();
+            if (data.Timestamp) {
+                data.Timestamp = data.Timestamp.toMillis(); // Convierte a milisegundos
+            }
+            return data;
+        });
         res.json({ documentos });
     } catch (error) {
         res.status(500).json({ error: `Error al generar informe: ${error.message}` });
