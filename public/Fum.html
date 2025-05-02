@@ -415,57 +415,29 @@
             }
         }
 
-async function validarPiso() {
-    const torreSelect = document.getElementById('torreSelectTab2').value;
-    const pisoInput = document.getElementById('piso').value;
-    const deptoSelect = document.getElementById('deptoSelect').value;
+        async function validarPiso() {
+            const torreSelect = document.getElementById('torreSelectTab2').value;
+            const pisoInput = document.getElementById('piso').value;
+            const deptoSelect = document.getElementById('deptoSelect').value;
 
-    function showMessageTab2(text, type) {
-        const messageBox = document.createElement('div');
-        messageBox.className = 'message-box';
-        if (type === 'success') messageBox.classList.add('success');
-        messageBox.textContent = text;
-        document.body.appendChild(messageBox);
-        setTimeout(() => messageBox.remove(), 3000);
-    }
+            function showMessageTab2(text, type) {
+                const messageBox = document.createElement('div');
+                messageBox.className = 'message-box';
+                if (type === 'success') messageBox.classList.add('success');
+                messageBox.textContent = text;
+                document.body.appendChild(messageBox);
+                setTimeout(() => messageBox.remove(), 3000);
+            }
 
-    if (pisoInput === '') {
-        showMessageTab2('El campo Piso no puede estar vacío.');
-        return;
-    }
+            if (pisoInput === '') {
+                showMessageTab2('El campo Piso no puede estar vacío.');
+                return;
+            }
 
-    if (pisoInput.includes(',') || pisoInput.includes('.')) {
-        showMessageTab2('El campo Piso no puede contener comas ni puntos.');
-        return;
-    }
-
-    const pisoNum = parseInt(pisoInput);
-    if (isNaN(pisoNum) || pisoNum < 0 || pisoNum > 15 || pisoInput !== pisoNum.toString()) {
-        showMessageTab2('El campo Piso debe ser un número entero entre 0 y 15.');
-        return;
-    }
-
-    const docId = `${torreSelect}_${pisoNum}_${deptoSelect}`;
-
-    try {
-        const response = await fetch(`/api/blanquear-password`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ docId })
-        });
-        const data = await response.json();
-
-        if (data.error) {
-            showMessageTab2(data.error, "error");
-            return;
-        }
-
-        showMessageTab2(`Contraseña blanqueada para ${docId}.`, 'success');
-    } catch (error) {
-        showMessageTab2(`Error al blanquear la contraseña: ${error.message}`, "error");
-    }
-}
-        
+            if (pisoInput.includes(',') || pisoInput.includes('.')) {
+                showMessageTab2('El campo Piso no puede contener comas ni puntos.');
+                return;
+            }
 
             const pisoNum = parseInt(pisoInput);
             if (isNaN(pisoNum) || pisoNum < 0 || pisoNum > 15 || pisoInput !== pisoNum.toString()) {
