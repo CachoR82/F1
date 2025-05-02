@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fumigación</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            position: relative;
+            min-height: 100vh;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        h2 {
+            margin-top: 0;
+            font-size: 13px;
+            margin-bottom: 30px;
+        }
+        table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        col:nth-child(1) {
+            width: 120px;
+        }
+        col:nth-child(2) {
+            width: 20px;
+        }
+        col:nth-child(3) {
+            width: 220px;
+        }
+        td {
+            text-align: left;
+            padding: 10px 0;
+            white-space: nowrap;
+        }
+        td:nth-child(1) {
+            padding: 0;
+            vertical-align: middle;
+        }
+        select {
+            width: 70px;
+            height: 36px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 8px;
+            background-color: blue;
+            color: #FFFFFF;
+            border: 1px solid black;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #6AA8E6;
+        }
+        #output {
+            margin-top: 20px;
+            text-align: center;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .confirmation-message {
+            background-color: green;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            display: inline-block;
+            opacity: 1;
+            transition: opacity 1s ease-out;
+        }
+        .error-message {
+            background-color: red;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            display: inline-block;
+            opacity: 1;
+            transition: opacity 1s ease-out;
+        }
+        .confirmation-message.fade-out,
+        .error-message.fade-out {
+            opacity: 0;
+        }
+        .confirmation-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 2px solid black;
+            border-radius: 8px;
+            padding: 20px;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .confirmation-dialog p {
+            font-weight: bold;
+            margin: 0 0 20px 0;
+            font-size: 16px;
+        }
+        .confirmation-dialog button {
+            width: 100px;
+            margin: 0 10px;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .confirmation-dialog .accept-btn {
+            background-color: green;
+            color: white;
+        }
+        .confirmation-dialog .cancel-btn {
+            background-color: red;
+            color: white;
+        }
+        .confirmation-dialog .accept-btn:hover {
+            background-color: #2e7d32;
+        }
+        .confirmation-dialog .cancel-btn:hover {
+            background-color: #d32f2f;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .tab-container {
+            max-width: 800px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+        }
+        .tab-button {
+            flex: 1;
+            padding: 10px;
+            background-color: black;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            border-right: 1px solid #ccc;
+        }
+        .tab-button:last-child {
+            border-right: none;
+        }
+        .tab-button:hover {
+            background-color: black;
+        }
+        .tab-button.active {
+            background-color: black;
+            border: 4px solid #90EE90;
+        }
+        .tab-content {
+            padding: 20px;
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        #tab2 table {
+            border-collapse: collapse;
+        }
+        #tab2 td {
+            text-align: left;
+        }
+        #tab2 .col1 {
+            width: 100px;
+        }
+        #tab2 .col2 {
+            width: 70px;
+        }
+        #tab2 .col3 {
+            width: 70px;
+        }
+        #tab2 .select1 {
+            width: 80px;
+            height: 36px;
+            box-sizing: border-box;
+        }
+        #tab2 .input1 {
+            width: 50px;
+            height: 36px;
+            box-sizing: border-box;
+        }
+        #tab2 .select2 {
+            width: 40px;
+            height: 36px;
+            box-sizing: border-box;
+        }
+        #tab2 button {
+            margin-top: 40px;
+            width: auto;
+            background-color: blue;
+            color: white;
+            padding: 8px;
+            border: 1px solid black;
+            border-radius: 4px;
+        }
+        #tab2 button:hover {
+            background-color: #6AA8E6;
+        }
+        #tab2 .first-row {
+            font-weight: bold;
+        }
+        #tab2 .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: red;
+            color: white;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 5px;
+            animation: fadeOut 3s forwards;
+            z-index: 1001;
+        }
+        #tab2 .message-box.success {
+            background-color: green;
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; display: none; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Fumigación</h1>
+    <h2>Menú Principal</h2>
+    <div class="tab-container">
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="openTab('tab1')">Informes</button>
+            <button class="tab-button" onclick="openTab('tab2')">Blanqueo de password</button>
+        </div>
+        <div id="tab1" class="tab-content active">
+            <table>
+                <colgroup>
+                    <col>
+                    <col>
+                    <col>
+                </colgroup>
+                <tr>
+                    <td rowspan="3">
+                        Torre:
+                        <p>
+                            <select id="torreSelect">
+                                <option value="1920">1920</option>
+                                <option value="1960">1960</option>
+                            </select>
+                        </p>
+                    </td>
+                    <td>●</td>
+                    <td><button onclick="generarInformeFumigador()">Informe para el fumigador</button></td>
+                </tr>
+                <tr>
+                    <td>●</td>
+                    <td><button onclick="generarInformeCompleto()">Informe completo</button></td>
+                </tr>
+                <tr>
+                    <td>●</td>
+                    <td><button onclick="inicializarBD()">Inicializar BD</button></td>
+                </tr>
+            </table>
+            <div id="output"></div>
+        </div>
+        <div id="tab2" class="tab-content">
+            <table>
+                <tr>
+                    <td class="col1 first-row">Torre</td>
+                    <td class="col2 first-row">Piso</td>
+                    <td class="col3 first-row">Depto</td>
+                </tr>
+                <tr>
+                    <td class="col1">
+                        <select class="select1" id="torreSelectTab2">
+                            <option>1920</option>
+                            <option>1960</option>
+                        </select>
+                    </td>
+                    <td class="col2">
+                        <input type="text" class="input1" id="piso">
+                    </td>
+                    <td class="col3">
+                        <select class="select2" id="deptoSelect">
+                            <option>A</option>
+                            <option>B</option>
+                            <option>C</option>
+                            <option>D</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <button onclick="validarPiso()"><b>Click para blanquear la password</b></button>
+        </div>
+    </div>
+
+    <script>
+        function getTorreSeleccionada() {
+            return document.getElementById("torreSelect").value;
+        }
+
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            const day = String(date.getDate()).padStart(2, "0");
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, "0");
+            const minutes = String(date.getMinutes()).padStart(2, "0");
+            const seconds = String(date.getSeconds()).padStart(2, "0");
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+        }
+
+        function showMessage(message, type) {
+            const outputDiv = document.getElementById("output");
+            const messageDiv = document.createElement("div");
+            messageDiv.className = type === "success" ? "confirmation-message" : "error-message";
+            messageDiv.textContent = message;
+            outputDiv.innerHTML = "";
+            outputDiv.appendChild(messageDiv);
+
+            setTimeout(() => {
+                messageDiv.classList.add("fade-out");
+                setTimeout(() => {
+                    outputDiv.innerHTML = "";
+                }, 1000);
+            }, 3000);
+        }
+
+        async function generarInformeFumigador() {
+            const torre = getTorreSeleccionada();
+            const outputDiv = document.getElementById("output");
+            outputDiv.innerHTML = "";
+
+            try {
+                const response = await fetch(`/api/informe-fumigador?torre=${torre}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    showMessage(data.error, "error");
+                    return;
+                }
+
+                const documentos = data.documentos;
+                if (!documentos.length) {
+                    showMessage("No hay datos para esta torre.", "error");
+                    return;
+                }
+
+                documentos.sort((a, b) => {
+                    if (a.Piso !== b.Piso) return a.Piso - b.Piso;
+                    return a.Depto.localeCompare(b.Depto);
+                });
+
+                let informe = "Torre\tPiso\tDepto\tComentarios\tObs\n";
+                documentos.forEach(data => {
+                    const comentarios = data.Comentarios || "";
+                    const obs = "";
+                    informe += `${data.Torre}\t${data.Piso}\t${data.Depto}\t${comentarios}\t${obs}\n`;
+                });
+
+                try {
+                    await navigator.clipboard.writeText(informe);
+                    showMessage("Informe en portapapeles", "success");
+                } catch (clipboardError) {
+                    showMessage(`Error al copiar al portapapeles: ${clipboardError.message}`, "error");
+                }
+            } catch (error) {
+                showMessage(`Error al generar el informe: ${error.message}`, "error");
+            }
+        }
+
+        async function generarInformeCompleto() {
+            const torre = getTorreSeleccionada();
+            const outputDiv = document.getElementById("output");
+            outputDiv.innerHTML = "";
+
+            try {
+                const response = await fetch(`/api/informe-completo?torre=${torre}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    showMessage(data.error, "error");
+                    return;
+                }
+
+                const documentos = data.documentos;
+                if (!documentos.length) {
+                    showMessage("No hay datos para esta torre.", "error");
+                    return;
+                }
+
+                documentos.sort((a, b) => {
+                    if (a.Piso !== b.Piso) return a.Piso - b.Piso;
+                    return a.Depto.localeCompare(b.Depto);
+                });
+
+                let informe = "Torre\tPiso\tDepto\tComentarios\tServicio\tTimestamp\n";
+                documentos.forEach(data => {
+                    const comentarios = data.Comentarios || "";
+                    const servicio = data.Servicio ? "Sí" : "No";
+                    const timestamp = data.Timestamp ? formatTimestamp(data.Timestamp) : "";
+                    informe += `${data.Torre}\t${data.Piso}\t${data.Depto}\t${comentarios}\t${servicio}\t${timestamp}\n`;
+                });
+
+                try {
+                    await navigator.clipboard.writeText(informe);
+                    showMessage("Informe en portapapeles", "success");
+                } catch (clipboardError) {
+                    showMessage(`Error al copiar al portapapeles: ${clipboardError.message}`, "error");
+                }
+            } catch (error) {
+                showMessage(`Error al generar el informe: ${error.message}`, "error");
+            }
+        }
+
+        function showConfirmationDialog(torre) {
+            const overlay = document.createElement("div");
+            overlay.className = "overlay";
+            document.body.appendChild(overlay);
+
+            const dialog = document.createElement("div");
+            dialog.className = "confirmation-dialog";
+            dialog.innerHTML = `
+                <p>¿Confirma la inicialización de la base de datos?</p>
+                <button class="accept-btn">Aceptar</button>
+                <button class="cancel-btn">Cancelar</button>
+            `;
+            document.body.appendChild(dialog);
+
+            dialog.querySelector(".accept-btn").addEventListener("click", async () => {
+                document.body.removeChild(dialog);
+                document.body.removeChild(overlay);
+                await cleanFieldsForTorre(torre);
+            });
+
+            dialog.querySelector(".cancel-btn").addEventListener("click", () => {
+                document.body.removeChild(dialog);
+                document.body.removeChild(overlay);
+            });
+        }
+
+        async function cleanFieldsForTorre(torre) {
+            const outputDiv = document.getElementById("output");
+            outputDiv.innerHTML = "";
+
+            try {
+                const response = await fetch(`/api/inicializar?torre=${torre}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.error) {
+                    showMessage(data.error, "error");
+                    return;
+                }
+
+                showMessage(`Base de datos inicializada para Torre ${torre}.`, "success");
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, "error");
+            }
+        }
+
+        function inicializarBD() {
+            const torre = getTorreSeleccionada();
+            showConfirmationDialog(torre);
+        }
+
+        async function validarPiso() {
+            const torreSelect = document.getElementById('torreSelectTab2').value;
+            const pisoInput = document.getElementById('piso').value;
+            const deptoSelect = document.getElementById('deptoSelect').value;
+
+            function showMessage(text, type) {
+                const messageBox = document.createElement('div');
+                messageBox.className = 'message-box';
+                if (type === 'success') messageBox.classList.add('success');
+                messageBox.textContent = text;
+                document.body.appendChild(messageBox);
+                setTimeout(() => messageBox.remove(), 3000);
+            }
+
+            if (pisoInput === '') {
+                showMessage('El campo Piso no puede estar vacío.');
+                return;
+            }
+
+            if (pisoInput.includes(',') || pisoInput.includes('.')) {
+                showMessage('El campo Piso no puede contener comas ni puntos.');
+                return;
+            }
+
+            const pisoNum = parseInt(pisoInput);
+            if (isNaN(pisoNum) || pisoNum < 0 || pisoNum > 15 || pisoInput !== pisoNum.toString()) {
+                showMessage('El campo Piso debe ser un número entero entre 0 y 15.');
+                return;
+            }
+
+            const docId = `${torreSelect}_${pisoNum}_${deptoSelect}`;
+
+            try {
+                const response = await fetch(`/api/blanquear-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ docId })
+                });
+                const data = await response.json();
+
+                if (data.error) {
+                    showMessage(data.error, "error");
+                    return;
+                }
+
+                showMessage(`Contraseña blanqueada para ${docId}.`, 'success');
+            } catch (error) {
+                showMessage(`Error al blanquear la contraseña: ${error.message}`, "error");
+            }
+        }
+
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab-button[onclick="openTab('${tabId}')"]`).classList.add('active');
+        }
+    </script>
+</body>
+</html>
