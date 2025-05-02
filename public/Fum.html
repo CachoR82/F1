@@ -482,8 +482,8 @@
             }
         }
 
-        async function inicializarBD() {
-    const torre = document.getElementById("torreInicializar").value;
+async function inicializarBD() {
+    const torre = document.getElementById("torreSelect").value;
     if (!torre) {
         alert("Por favor, selecciona una torre.");
         return;
@@ -508,6 +508,7 @@
         alert("Error al inicializar la base de datos: " + error.message);
     }
 }
+        
 
         async function validarPiso() {
             const torreSelect = document.getElementById('torreSelectTab2').value;
