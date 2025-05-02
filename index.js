@@ -164,7 +164,17 @@ app.post('/api/inicializar', async (req, res) => {
 app.post('/api/blanquear-password', async (req, res) => {
     try {
         const { docId } = req.body;
+        if (!docId) {
+            return res.status(400).json({ error: 'Falta el parámetro docId.' });
+        }
+
         const docRef = admin.firestore().collection('idFum').doc(docId);
+        const docSnap = await docRef.get();
+
+        if (!docSnap.exists) {
+            return res.status(404).json({ error: `El documento con ID ${docId} no existe en la base de datos.` });
+        }
+
         await docRef.update({ passCrypt: '' });
         res.json({ message: `Contraseña blanqueada para ${docId}.` });
     } catch (error) {
