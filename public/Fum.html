@@ -482,10 +482,32 @@
             }
         }
 
-        function inicializarBD() {
-            const torre = getTorreSeleccionada();
-            showConfirmationDialog(torre);
-        }
+        async function inicializarBD() {
+    const torre = document.getElementById("torreInicializar").value;
+    if (!torre) {
+        alert("Por favor, selecciona una torre.");
+        return;
+    }
+
+    if (!confirm("¿Estás seguro de que deseas inicializar la base de datos para esta torre? Esto borrará comentarios, desactivará el servicio y eliminará el timestamp.")) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/inicializar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ torre })
+        });
+        const data = await response.json();
+        if (data.error) throw new Error(data.error);
+        alert(data.message);
+    } catch (error) {
+        alert("Error al inicializar la base de datos: " + error.message);
+    }
+}
 
         async function validarPiso() {
             const torreSelect = document.getElementById('torreSelectTab2').value;
