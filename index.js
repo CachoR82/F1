@@ -135,10 +135,17 @@ app.get('/api/informe-completo', async (req, res) => {
 
 app.post('/api/inicializar', async (req, res) => {
     try {
-        const torre = parseInt(req.query.torre);
+        const { torre } = req.body; // Cambia de req.query a req.body
+        if (!torre) {
+            return res.status(400).json({ error: 'Falta el parámetro torre.' });
+        }
+        const torreNum = parseInt(torre);
         const snapshot = await admin.firestore().collection('idFum')
-            .where('Torre', '==', torre)
+            .where('Torre', '==', torreNum)
             .get();
+        if (snapshot.empty) {
+            return res.status(404).json({ message: `No se encontraron registros para Torre ${torreNum}.` });
+        }
         const batch = admin.firestore().batch();
         snapshot.forEach(doc => {
             batch.update(doc.ref, {
@@ -148,7 +155,7 @@ app.post('/api/inicializar', async (req, res) => {
             });
         });
         await batch.commit();
-        res.json({ message: `Base de datos inicializada para Torre ${torre}.` });
+        res.json({ message: `Base de datos inicializada para Torre ${torreNum}.` });
     } catch (error) {
         res.status(500).json({ error: `Error al inicializar: ${error.message}` });
     }
