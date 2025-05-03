@@ -73,6 +73,11 @@
         col:nth-child(3) {
             width: 220px;
         }
+        @media (min-width: 769px) {
+            col:nth-child(3) {
+                width: 450px;
+            }
+        }
         td {
             text-align: left;
             padding: 10px 0;
@@ -89,11 +94,28 @@
         }
         button {
             width: 100%;
+            max-width: 100%;
             padding: 8px;
             background-color: blue;
             color: #FFFFFF;
             border: 1px solid black;
             border-radius: 4px;
+            overflow-wrap: break-word;
+            white-space: normal;
+            overflow: hidden;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            button {
+                font-size: 14px;
+                padding: 6px;
+            }
+        }
+        @media (min-width: 769px) {
+            button {
+                padding: 10px;
+            }
         }
         button:hover {
             background-color: #6AA8E6;
@@ -475,7 +497,7 @@
 
                 showMessageTab2(`Contraseña blanqueada para ${docId}.`, 'success');
             } catch (error) {
-                showMessageTab2(`Error al blanquear la contraseña: ${error.message}`, 'error');
+                showMessageTab2(`Error al blanquear la contraseña: ${error.message}`, "error");
             }
         }
 
