@@ -25,7 +25,8 @@ app.post('/api/buscar', async (req, res) => {
     try {
         const { torre, piso, depto, clave } = req.body;
 
-        if (!torre || !piso || !depto || !clave) {
+        // Solo verificamos que piso no sea undefined o null, ya que los otros campos siempre tienen valores válidos
+        if (piso === undefined || piso === null) {
             return res.status(400).json({ error: 'Faltan campos requeridos' });
         }
 
@@ -62,7 +63,7 @@ app.post('/api/guardar', async (req, res) => {
     try {
         const { torre, piso, depto, clave, servicio, comentarios } = req.body;
 
-        if (!torre || !piso || !depto || !clave) {
+        if (piso === undefined || piso === null) {
             return res.status(400).json({ error: 'Faltan campos requeridos' });
         }
 
@@ -91,9 +92,7 @@ app.post('/api/guardar', async (req, res) => {
     }
 });
 
-// Iniciar el servidor
-const PORT = process.env.PORT || 3000;
-
+// Ruta para informe de fumigador
 app.get('/api/informe-fumigador', async (req, res) => {
     try {
         const torre = parseInt(req.query.torre);
@@ -114,6 +113,7 @@ app.get('/api/informe-fumigador', async (req, res) => {
     }
 });
 
+// Ruta para informe completo
 app.get('/api/informe-completo', async (req, res) => {
     try {
         const torre = parseInt(req.query.torre);
@@ -133,6 +133,7 @@ app.get('/api/informe-completo', async (req, res) => {
     }
 });
 
+// Ruta para inicializar base de datos
 app.post('/api/inicializar', async (req, res) => {
     try {
         const { torre } = req.body; // Cambia de req.query a req.body
@@ -161,6 +162,7 @@ app.post('/api/inicializar', async (req, res) => {
     }
 });
 
+// Ruta para blanquear contraseña
 app.post('/api/blanquear-password', async (req, res) => {
     try {
         const { docId } = req.body;
@@ -182,6 +184,8 @@ app.post('/api/blanquear-password', async (req, res) => {
     }
 });
 
+// Iniciar el servidor
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
