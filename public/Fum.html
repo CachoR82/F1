@@ -351,6 +351,27 @@
             }, 3000);
         }
 
+        async function enviarAGoogleSheets(jsonData) {
+            try {
+                const scriptUrl = 'https://script.google.com/macros/s/AKfycbyxuj91pU2UYf6fuUbwrD3JWHd9zZyeeBy4HU0RtxX7Ww5xoHi8AbVugj5PheRNI4IWQg/exec';
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(jsonData)
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showMessage("Datos enviados a Google Sheets", "success");
+                } else {
+                    showMessage("Error al enviar datos a Google Sheets: " + result.message, "error");
+                }
+            } catch (error) {
+                showMessage("Error al conectar con Google Sheets: " + error.message, "error");
+            }
+        }
+
         async function generarInformeFumigador() {
             const torre = getTorreSeleccionada();
             const outputDiv = document.getElementById("output");
@@ -386,6 +407,22 @@
                 try {
                     await navigator.clipboard.writeText(informe);
                     showMessage("Informe en portapapeles", "success");
+
+                    // Convertir informe a JSON para enviar a Google Sheets
+                    const lines = informe.split('\n');
+                    const headers = lines[0].split('\t');
+                    const dataRows = lines.slice(1).filter(line => line.trim() !== '');
+
+                    const jsonData = dataRows.map(row => {
+                        const values = row.split('\t');
+                        return headers.reduce((obj, header, index) => {
+                            obj[header.trim()] = values[index] || '';
+                            return obj;
+                        }, {});
+                    });
+
+                    // Enviar a Google Sheets
+                    await enviarAGoogleSheets(jsonData);
                 } catch (clipboardError) {
                     showMessage(`Error al copiar al portapapeles: ${clipboardError.message}`, "error");
                 }
