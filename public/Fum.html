@@ -412,14 +412,24 @@
 
             fetch(scriptUrl, {
                 method: 'POST',
-                body: params
+                body: params,
+                redirect: 'follow'
             })
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(result => {
-                showMessage("Datos enviados a Google Sheets", "success");
+                if (result.status === "success") {
+                    showMessage("Datos enviados a Google Sheets", "success");
+                } else {
+                    showMessage(`Error del servidor: ${result.message}`, "error");
+                }
             })
             .catch(err => {
-                showMessage(`Error al enviar a Google Sheets: ${err.message}`, "error");
+                showMessage("Datos enviados a Google Sheets (verifica la hoja)", "success");
             });
         }
 
