@@ -401,37 +401,38 @@
         }
 
         // Función para enviar datos a Google Sheets
-        function sendToGoogleSheets(tblAsText, sheetName, clearData, rangeToClear) {
-            const params = new URLSearchParams({
-                data: tblAsText,
-                sheetName: sheetName,
-                spreadsheetId: spreadsheetId,
-                clearData: clearData,
-                rangeToClear: rangeToClear
-            });
+function sendToGoogleSheets(tblAsText, sheetName, clearData, rangeToClear) {
+    const params = new URLSearchParams({
+        data: tblAsText,
+        sheetName: sheetName,
+        spreadsheetId: spreadsheetId,
+        clearData: clearData,
+        rangeToClear: rangeToClear
+    });
 
-            fetch(scriptUrl, {
-                method: 'POST',
-                body: params,
-                redirect: 'follow'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(result => {
-                if (result.status === "success") {
-                    showMessage("Datos enviados a Google Sheets", "success");
-                } else {
-                    showMessage(`Error del servidor: ${result.message}`, "error");
-                }
-            })
-            .catch(err => {
-                showMessage("Datos enviados a Google Sheets (verifica la hoja)", "success");
-            });
+    fetch(scriptUrl, {
+        method: 'POST',
+        body: params,
+        redirect: 'follow'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        return response.json();
+    })
+    .then(result => {
+        if (result.status === "success") {
+            // Mostrar el mensaje del script junto con el número de filas y columnas
+            showMessage(`${result.message} (${result.rowsWritten} filas, ${result.columnsWritten} columnas)`, "success");
+        } else {
+            showMessage(`Error del servidor: ${result.message}`, "error");
+        }
+    })
+    .catch(err => {
+        showMessage("Datos enviados a Google Sheets (verifica la hoja)", "success");
+    });
+}
 
         function getTorreSeleccionada() {
             return document.getElementById("torreSelect").value;
