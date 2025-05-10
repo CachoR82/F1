@@ -465,102 +465,110 @@ function sendToGoogleSheets(tblAsText, sheetName, clearData, rangeToClear) {
             }, 3000);
         }
 
-        async function generarInformeFumigador() {
-            const torre = getTorreSeleccionada();
-            const outputDiv = document.getElementById("output");
-            outputDiv.innerHTML = "";
+async function generarInformeFumigador() {
+    const torre = getTorreSeleccionada();
+    const outputDiv = document.getElementById("output");
+    outputDiv.innerHTML = "";
 
-            try {
-                const response = await fetch(`/api/informe-fumigador?torre=${torre}`);
-                const data = await response.json();
+    try {
+        const response = await fetch(`/api/informe-fumigador?torre=${torre}`);
+        const data = await response.json();
 
-                if (data.error) {
-                    showMessage(data.error, "error");
-                    return;
-                }
-
-                const documentos = data.documentos;
-                if (!documentos.length) {
-                    showMessage("No hay datos para esta torre.", "error");
-                    return;
-                }
-
-                documentos.sort((a, b) => {
-                    if (a.Piso !== b.Piso) return a.Piso - b.Piso;
-                    return a.Depto.localeCompare(b.Depto);
-                });
-
-                let informe = "Torre\tPiso\tDepto\tComentarios\tObs\n";
-                documentos.forEach(data => {
-                    const comentarios = data.Comentarios || "";
-                    const obs = "";
-                    informe += `${data.Torre}\t${data.Piso}\t${data.Depto}\t${comentarios}\t${obs}\n`;
-                });
-
-                try {
-                    await navigator.clipboard.writeText(informe);
-                    showMessage("Informe en portapapeles", "success");
-
-                    // Mostrar modal para enviar a Google Sheets
-                    showSheetsModal((clearData) => {
-                        sendToGoogleSheets(informe, sheetNameFumigador, clearData, rangeToClearFumigador);
-                    });
-                } catch (clipboardError) {
-                    showMessage(`Error al copiar al portapapeles: ${clipboardError.message}`, "error");
-                }
-            } catch (error) {
-                showMessage(`Error al generar el informe: ${error.message}`, "error");
-            }
+        if (data.error) {
+            showMessage(data.error, "error");
+            return;
         }
 
-        async function generarInformeCompleto() {
-            const torre = getTorreSeleccionada();
-            const outputDiv = document.getElementById("output");
-            outputDiv.innerHTML = "";
-
-            try {
-                const response = await fetch(`/api/informe-completo?torre=${torre}`);
-                const data = await response.json();
-
-                if (data.error) {
-                    showMessage(data.error, "error");
-                    return;
-                }
-
-                const documentos = data.documentos;
-                if (!documentos.length) {
-                    showMessage("No hay datos para esta torre.", "error");
-                    return;
-                }
-
-                documentos.sort((a, b) => {
-                    if (a.Piso !== b.Piso) return a.Piso - b.Piso;
-                    return a.Depto.localeCompare(b.Depto);
-                });
-
-                let informe = "Torre\tPiso\tDepto\tComentarios\tServicio\tTimestamp\n";
-                documentos.forEach(data => {
-                    const comentarios = data.Comentarios || "";
-                    const servicio = data.Servicio ? "Sí" : "No";
-                    const timestamp = data.Timestamp ? formatTimestamp(data.Timestamp) : "";
-                    informe += `${data.Torre}\t${data.Piso}\t${data.Depto}\t${comentarios}\t${servicio}\t${timestamp}\n`;
-                });
-
-                try {
-                    await navigator.clipboard.writeText(informe);
-                    showMessage("Informe en portapapeles", "success");
-
-                    // Mostrar modal para enviar a Google Sheets
-                    showSheetsModal((clearData) => {
-                        sendToGoogleSheets(informe, sheetNameCompleto, clearData, rangeToClearCompleto);
-                    });
-                } catch (clipboardError) {
-                    showMessage(`Error al copiar al portapapeles: ${clipboardError.message}`, "error");
-                }
-            } catch (error) {
-                showMessage(`Error al generar el informe: ${error.message}`, "error");
-            }
+        const documentos = data.documentos;
+        if (!documentos.length) {
+            showMessage("No hay datos para esta torre.", "error");
+            return;
         }
+
+        documentos.sort((a, b) => {
+            if (a.Piso !== b.Piso) return a.Piso - b.Piso;
+            return a.Depto.localeCompare(b.Depto);
+        });
+
+        let informe = "Torre\tPiso\tDepto\tComentarios\tObs\n";
+        documentos.forEach(data => {
+            const comentarios = data.Comentarios || "";
+            const obs = "";
+            informe += `${data.Torre}\t${data.Piso}\t${data.Depto}\t${comentarios}\t${obs}\n`;
+        });
+        // Eliminar el último \n si existe
+        informe = informe.trim();
+
+        try {
+            await navigator.clipboard.writeText(informe);
+            showMessage("Informe en portapapeles", "success");
+
+            showSheetsModal((clearData) => {
+                sendToGoogleSheets(informe, sheetNameFumigador, clearData, rangeToClearFumigador);
+            });
+        } catch (clipboardError) {
+            showMessage(`Error al copiar al portapapeles: ${clipboardError.message}`, "error");
+        }
+    } catch (error) {
+        showMessage(`Error al generar el informe: ${error.message}`, "error");
+    }
+}
+ 
+
+
+
+async function generarInformeCompleto() {
+    const torre = getTorreSeleccionada();
+    const outputDiv = document.getElementById("output");
+    outputDiv.innerHTML = "";
+
+    try {
+        const response = await fetch(`/api/informe-completo?torre=${torre}`);
+        const data = await response.json();
+
+        if (data.error) {
+            showMessage(data.error, "error");
+            return;
+        }
+
+        const documentos = data.documentos;
+        if (!documentos.length) {
+            showMessage("No hay datos para esta torre.", "error");
+            return;
+        }
+
+        documentos.sort((a, b) => {
+            if (a.Piso !== b.Piso) return a.Piso - b.Piso;
+            return a.Depto.localeCompare(b.Depto);
+        });
+
+        let informe = "Torre\tPiso\tDepto\tComentarios\tServicio\tTimestamp\n";
+        documentos.forEach(data => {
+            const comentarios = data.Comentarios || "";
+            const servicio = data.Servicio ? "Sí" : "No";
+            const timestamp = data.Timestamp ? formatTimestamp(data.Timestamp) : "";
+            informe += `${data.Torre}\t${data.Piso}\t${data.Depto}\t${comentarios}\t${servicio}\t${timestamp}\n`;
+        });
+        // Eliminar el último \n si existe
+        informe = informe.trim();
+
+        try {
+            await navigator.clipboard.writeText(informe);
+            showMessage("Informe en portapapeles", "success");
+
+            showSheetsModal((clearData) => {
+                sendToGoogleSheets(informe, sheetNameCompleto, clearData, rangeToClearCompleto);
+            });
+        } catch (clipboardError) {
+            showMessage(`Error al copiar al portapapeles: ${clipboardError.message}`, "error");
+        }
+    } catch (error) {
+        showMessage(`Error al generar el informe: ${error.message}`, "error");
+    }
+}
+
+
+
 
         async function validarPiso() {
             const torreSelect = document.getElementById('torreSelectTab2').value;
