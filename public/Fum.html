@@ -400,6 +400,7 @@
             }
         }
 
+
         // Función para enviar datos a Google Sheets
 function sendToGoogleSheets(tblAsText, sheetName, clearData, rangeToClear) {
     const params = new URLSearchParams({
@@ -423,8 +424,7 @@ function sendToGoogleSheets(tblAsText, sheetName, clearData, rangeToClear) {
     })
     .then(result => {
         if (result.status === "success") {
-            // Mostrar el mensaje del script junto con el número de filas y columnas
-            showMessage(`${result.message} (${result.rowsWritten} filas, ${result.columnsWritten} columnas)`, "success");
+            showMessage(result.message, "success"); // Solo muestra el mensaje
         } else {
             showMessage(`Error del servidor: ${result.message}`, "error");
         }
@@ -433,6 +433,9 @@ function sendToGoogleSheets(tblAsText, sheetName, clearData, rangeToClear) {
         showMessage("Datos enviados a Google Sheets (verifica la hoja)", "success");
     });
 }
+
+
+
 
         function getTorreSeleccionada() {
             return document.getElementById("torreSelect").value;
