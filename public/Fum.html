@@ -51,6 +51,50 @@
             color: white;
         }
 
+        /* Nuevos estilos para el modal de Google Sheets */
+        .sheets-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .sheets-modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 200px;
+            width: 90%;
+        }
+        .sheets-modal-content h2 {
+            margin: 0 0 20px;
+            font-size: 1em;
+            color: #333;
+        }
+        .sheets-modal-buttons button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        .sheets-modal-buttons button.yes {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .sheets-modal-buttons button.no {
+            background-color: #f44336;
+            color: white;
+        }
+
         h1 {
             margin-bottom: 10px;
         }
@@ -310,7 +354,7 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmación -->
+    <!-- Modal de Confirmación para Inicializar BD -->
     <div id="confirmModal" style="display: none;">
         <div class="modal-content">
             <p id="confirmMessage"></p>
@@ -319,7 +363,66 @@
         </div>
     </div>
 
+    <!-- Nuevo Modal para Google Sheets -->
+    <div id="sheetsModal" class="sheets-modal">
+        <div class="sheets-modal-content">
+            <h2>¿Deseas borrar los datos existentes?</h2>
+            <div class="sheets-modal-buttons">
+                <button class="yes" onclick="handleSheetsModalResponse('Sí')">Sí</button>
+                <button class="no" onclick="handleSheetsModalResponse('No')">No</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Variables paramétricas para Google Sheets
+        const spreadsheetId = "1Dy4d2ob2j7ixPg-XCAMTVQt6x2bfWpmECrV45Cbq2aU";
+        const sheetNameFumigador = "para Fumigador";
+        const sheetNameCompleto = "Info completo";
+        const rangeToClearFumigador = "A1:F";
+        const rangeToClearCompleto = "A1:G";
+        const scriptUrl = "https://script.google.com/macros/s/AKfycbwr2yAvXD2sxcPkqCNTAxkPH7yN8LbFwTL-fUMcPRb3iu8FkxbSz3e9Ly5FiZ8nj86Rjw/exec";
+
+        // Variable para manejar la lógica del modal de Google Sheets
+        let currentSheetsAction = null;
+
+        // Función para mostrar el modal de Google Sheets
+        function showSheetsModal(action) {
+            currentSheetsAction = action;
+            document.getElementById('sheetsModal').style.display = 'flex';
+        }
+
+        // Función para manejar la respuesta del modal de Google Sheets
+        function handleSheetsModalResponse(response) {
+            document.getElementById('sheetsModal').style.display = 'none';
+            if (currentSheetsAction) {
+                currentSheetsAction(response);
+            }
+        }
+
+        // Función para enviar datos a Google Sheets
+        function sendToGoogleSheets(tblAsText, sheetName, clearData, rangeToClear) {
+            const params = new URLSearchParams({
+                data: tblAsText,
+                sheetName: sheetName,
+                spreadsheetId: spreadsheetId,
+                clearData: clearData,
+                rangeToClear: rangeToClear
+            });
+
+            fetch(scriptUrl, {
+                method: 'POST',
+                body: params
+            })
+            .then(response => response.text())
+            .then(result => {
+                showMessage("Datos enviados a Google Sheets", "success");
+            })
+            .catch(err => {
+                showMessage(`Error al enviar a Google Sheets: ${err.message}`, "error");
+            });
+        }
+
         function getTorreSeleccionada() {
             return document.getElementById("torreSelect").value;
         }
@@ -386,6 +489,11 @@
                 try {
                     await navigator.clipboard.writeText(informe);
                     showMessage("Informe en portapapeles", "success");
+
+                    // Mostrar modal para enviar a Google Sheets
+                    showSheetsModal((clearData) => {
+                        sendToGoogleSheets(informe, sheetNameFumigador, clearData, rangeToClearFumigador);
+                    });
                 } catch (clipboardError) {
                     showMessage(`Error al copiar al portapapeles: ${clipboardError.message}`, "error");
                 }
@@ -430,6 +538,11 @@
                 try {
                     await navigator.clipboard.writeText(informe);
                     showMessage("Informe en portapapeles", "success");
+
+                    // Mostrar modal para enviar a Google Sheets
+                    showSheetsModal((clearData) => {
+                        sendToGoogleSheets(informe, sheetNameCompleto, clearData, rangeToClearCompleto);
+                    });
                 } catch (clipboardError) {
                     showMessage(`Error al copiar al portapapeles: ${clipboardError.message}`, "error");
                 }
@@ -448,15 +561,14 @@
                 const messageBox = document.createElement('div');
                 messageBox.className = type === 'success' ? 'confirmation-message' : 'error-message';
                 messageBox.textContent = text;
-                outputDiv.innerHTML = ""; // Limpiar mensajes anteriores
+                outputDiv.innerHTML = "";
                 outputDiv.appendChild(messageBox);
 
-                // Desvanecer y eliminar después de 3 segundos
                 setTimeout(() => {
                     messageBox.classList.add('fade-out');
                     setTimeout(() => {
                         outputDiv.innerHTML = "";
-                    }, 1000); // Transición de 1 segundo
+                    }, 1000);
                 }, 3000);
             }
 
